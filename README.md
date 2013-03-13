@@ -7,7 +7,7 @@ Bascially, a load of functionality which has been used by several lucos modules 
 
 ## Key files
 
-# bootloader.js
+### bootloader.js
 A client side javascript library which loads various resources from the server and stores them in localstorage (if available).
 Supports the following types of resources:
 * javascript
@@ -17,10 +17,10 @@ Supports the following types of resources:
 Javascript and CSS will automatically be added to the page/run.
 The bootloader supports updates to individual components from the server, without having to download all the other components.
 
-# resources.*
+### resources.*
 The server-side libraries to server resources in a manner compatible with bootloader.js
 
-# lucos.js
+### lucos.js
 A javascript library which does lots of useful stuff for lucos modules, including:
 * Add a standard lucos nav bar to the top of the page
 * PubSub (including cross origin via postMessages)
