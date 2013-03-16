@@ -39,6 +39,7 @@ window.lucos = function _lucos(){
 		})();
 	}
 	if (!('JSON' in window)) {
+		
 		window.JSON = (function _badJSON() {
 			function stringify(item) {
 				var output, kk, ii, ll;
@@ -194,11 +195,13 @@ window.lucos = function _lucos(){
 		};
 	})();
 	
-	
+					   
 	var navBarAdded = false;
+	var navBarDisabled = false;
 	var navBarMenus = {};
 	var navBarMenuButtons = {};
 	function addNavBar(title) {
+		if (navBarDisabled) return;
 		if (navBarAdded) {
 			if (title) document.getElementById('lucos_navbar_title').firstChild.nodeValue = title;
 			return;
@@ -337,6 +340,10 @@ window.lucos = function _lucos(){
 		} catch (err) {
 		}
 	}
+	function disableNavBar() {
+		navBarDisabled = true;
+		// TODO: Maybe remove the nav bar if it's already present at this point
+	}
 	
 	function addMenuItem(item, callback, menu) {
 		pubsub.waitFor('navbaradded', function _navbaradded() {
@@ -447,8 +454,8 @@ window.lucos = function _lucos(){
 				addOnClick(event.relatedNode);
 			}, false);
 			
-			// Stuff to do when in browser
-			if (!window.navigator.standalone) {
+			// Stuff to do when in browser (parent window only
+			if (!window.navigator.standalone && window == window.top) {
 				
 				var defaultStyleHeight = document.body.style.height;
 				
@@ -582,26 +589,41 @@ window.lucos = function _lucos(){
 			return clientTime() + savedOffset;
 		}
 	})();
-	var speak = (function () {
+	var speech = (function () {
+		var speech = {};
 		var speakFrame;
-		return function _sendSpeak(text) {
+		speech.send = function (text) {
+			//noop until API is ready
+		}
+		speech.getButton = function getButton() {
 
-                                // Browsers which don't support window messaging can just ignore speech.
-                                if (typeof window.postMessage == 'undefined') return;
-                                if (speakFrame) {
-                                        pubsub.send("speak", { text: text }, speakFrame.contentWindow);
-                                } else {
-                                        pubsub.listen("api_ready", function _speechAPIReady(params, source) {
-                                                if (source != speakFrame.contentWindow) return;
-                                                _sendSpeak();
-                                        });
-                                        speakFrame = document.createElement("iframe");
-                                        speakFrame.src = "http://speak.l42.eu/";
-                                        speakFrame.setAttribute("style", "height: 0; width: 0; display:none;");
-                                        document.body.appendChild(speakFrame);
-                                }
-                        }
+			// Browsers which don't support window messaging can just ignore speech.
+			if (typeof window.postMessage == 'undefined') return;
 
+			// Create an iframe to load the speech button
+			speakFrame = document.createElement("iframe");
+
+			pubsub.listen("api_ready", function _speechAPIReady(params, source) {
+				if (source != speakFrame.contentWindow) return;
+						  
+				// Once the API is ready, replace the send function to use the API and show the button
+				speech.send = function (text) {
+					pubsub.send("speak", { text: text }, speakFrame.contentWindow);
+				}
+				speakFrame.style.borderStyle = "none";
+				speakFrame.style.display = null;
+			});
+
+
+			speakFrame.src = "http://speak.l42.eu/";
+			speakFrame.style.display = "none";
+			speakFrame.setAttribute("style", "display:none;");
+			speakFrame.addClass("speakButton");
+
+			return speakFrame;
+		}
+
+		return speech;
 	})();
 	var detect = (function _detect() {
 		
@@ -617,11 +639,15 @@ window.lucos = function _lucos(){
 				}
 				
 				testVid.setAttribute("style", "visibility: hidden");
-				testVid.src = 'http://ceol.l42.eu/placeholder.mp3';
+				//testVid.src = 'http://ceol.l42.eu/placeholder.mp3';
+						   
+				// Try playing a really short mp3
+				testVid.src = 'data:audio/mpeg;base64,//MUxAAAAANIAUAAAExBTUUzLjk2LjFV//MUxAsAAANIAYAAAFVVVVVVVVVVVVVV';
 				document.body.appendChild(testVid);
 				
 				testAud.setAttribute("style", "visibility: hidden");
-				testAud.src = 'http://ceol.l42.eu/placeholder.mp3';
+				//testAud.src = 'http://ceol.l42.eu/placeholder.mp3';
+				testAud.src = 'data:audio/mpeg;base64,//MUxAAAAANIAUAAAExBTUUzLjk2LjFV//MUxAsAAANIAYAAAFVVVVVVVVVVVVVV';
 				document.body.appendChild(testAud);
 				
 				// Do a quick play/pause to check whether the user has to click before playing will work.
@@ -931,8 +957,9 @@ window.lucos = function _lucos(){
 		waitFor: pubsub.waitFor,
 		send: pubsub.send,
 		getTime: getTime,
-		speak: speak,
+		speech: speech,
 		addNavBar: addNavBar,
+		disableNavBar: disableNavBar,
 		addMenuItem: addMenuItem,
 		detect: detect,
 		net: net,
