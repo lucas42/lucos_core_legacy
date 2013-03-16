@@ -137,7 +137,7 @@
 								document.getElementsByTagName('head')[0].appendChild(style);
 								break;
 							case "js":
-								eval(content);
+								jsmodules[key] = new Function ("module", "exports", "require", content);
 								break;
 							case "json":
 								window.lucos_bootloader.bootdata[key] = JSON.parse(content);
@@ -150,8 +150,19 @@
 								throw "Unknown resource type '"+resources[key]+"'";
 						}
 						if (key) parsed[key] = true;
-					}
-					function parseResources(resources, data) {
+				 }
+				 var jsmodules = {}, mainjs;
+				 function require(moduleid) {
+					 var exports = {}, module={id:moduleid};
+					 require.main = undefined;
+					 if (!(moduleid in jsmodules)) throw "Can't find module '"+moduleid+"'";
+					 if (typeof jsmodules[moduleid] == "function") {
+						 jsmodules[moduleid](module, exports, require);
+						 jsmodules[moduleid] = exports;
+					 }
+					 return jsmodules[moduleid];
+				 }
+				 function parseResources(resources, data) {
 						var key, content, ii, ll, resource;
 						updateLoadingMessage('Parsing resources');
 						try {
@@ -177,7 +188,23 @@
 									parseResource(key, type, content);
 								}
 							}
-						} catch (err) {						
+				 
+							// Decide which javascript module(s) to execute
+							if (typeof data == 'object') {
+								mainjs = data.mainjs;
+							} else {
+								mainjs = window.localStorage.getItem('mainjs');
+							}
+							if (mainjs) {
+								require(mainjs);
+							} else {
+
+								// If no main module has been specified, then just require all the javascript modules
+								for (ii in jsmodules) {
+									require(ii);
+								}
+							}
+						} catch (err) {
 							if (typeof console !== 'undefined') {
 								if (err.toString) {
 									console.log(key, err.toString(), err);
@@ -256,5 +283,5 @@
 						forcechange = true;
 						getNewResources(version);
 					}
-					
-				})();
+				 
+				 })();
