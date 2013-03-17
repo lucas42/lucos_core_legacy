@@ -113,12 +113,13 @@
 							} else if(req.status >= 400) {
 								throw req.status + "error occured";
 							}
-							if (typeof window.lucos == "object") {
-								window.lucos.send("bootloaderReady");
+				 
+							if ("lucosjs" in jsmodules) {
+								require("lucosjs").send("bootloaderReady");
 								if (window != window.parent) {
-									window.lucos.send('preload', {result: 'done', section: 'resources'}, window.parent);
+									require("lucosjs").send('preload', {result: 'done', section: 'resources'}, window.parent);
 								}
-								window.lucos.waitFor('manifestready', hideSplashScreen);
+								require("lucosjs").waitFor('manifestready', hideSplashScreen);
 							} else {
 								hideSplashScreen();
 							}
@@ -263,10 +264,10 @@
 							if (!forcechange) {
 								parseResources(resources);
 								hideSplashScreen();
-								if (typeof window.lucos == "object") {
+								if ("lucosjs" in jsmodules) {
 									if (window != window.parent) {
 										// Send a message to the parent that we're ready (though not yet done)
-										window.lucos.send('preload', {result: 'ready', section: 'resources'}, window.parent);
+										require("lucosjs").send('preload', {result: 'ready', section: 'resources'}, window.parent);
 									}
 								}
 							}

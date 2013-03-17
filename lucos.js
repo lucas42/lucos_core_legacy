@@ -1,4 +1,4 @@
-window.lucos = function _lucos(){
+(function _lucos(){
 	//"use strict";
 	var _islite = true, globallinkhandlers = [];
 	/*var msgListeners = {
@@ -18,6 +18,7 @@ window.lucos = function _lucos(){
 			document.body.appendChild(back);
 		}
 	}*/
+ 
 	if (!('localStorage' in window)) {
 		window.localStorage = (function _fakestorage() {
 			var storage = {};
@@ -956,6 +957,7 @@ window.lucos = function _lucos(){
 		listen: pubsub.listen,
 		waitFor: pubsub.waitFor,
 		send: pubsub.send,
+		unlisten: pubsub.unlisten,
 		getTime: getTime,
 		speech: speech,
 		addNavBar: addNavBar,
@@ -980,8 +982,18 @@ window.lucos = function _lucos(){
 			}
 			lucos[ii] = window.lucos_bootloader[ii];
 		}
-	})();
+	 })();
+					   
+	// If used as a commonJS module, then assign everything to the exports object
+	if (typeof exports == 'object') {
+		for (var i in lucos) {
+			exports[i] = lucos[i];
+		}
+
+	// Otherwise assign lucos to global scope
+	} else {
+		window.lucos = lucos;
+	}
 		
-	return lucos;
-}();
+})();
 
