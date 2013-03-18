@@ -111,7 +111,7 @@
 									parseResources(data.r, data);
 								}
 							} else if(req.status >= 400) {
-								throw req.status + "error occured";
+								throw req.status + " error occured";
 							}
 				 
 							if ("lucosjs" in jsmodules) {

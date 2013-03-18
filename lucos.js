@@ -121,6 +121,20 @@
 			}
 			return false;
 		}
+				  
+		/*
+		* Calls callback if message has already happened (passing most recent value), then listens for future calls
+		*
+		* Only works for internal messages
+		* 
+		*/
+		function listenExisting(type, callback) {
+			listen(type, callback, true);
+			if (triggered.hasOwnProperty(type)) {
+				callback(triggered[type], window);
+			}
+
+		}
 		
 		/*
 		 * Calls callback if message has already happened, otherwise listens for it once
@@ -129,15 +143,11 @@
 		 * 
 		 */
 		function waitFor(type, callback) {
-			if (triggered.hasOwnProperty(type)) {
-				callback(triggered[type], window);
-				return;
-			}
 			function callbackwrapper(msg) {
 				unlisten(type, callbackwrapper, true);
 				callback(msg, window);
 			}
-			listen(type, callbackwrapper, true);
+			listenExisting(type, callbackwrapper, true);
 		}
 		
 		function trigger(type, msg, source, internal) {
@@ -157,6 +167,7 @@
 			listen: listen,
 			unlisten: unlisten,
 			waitFor: waitFor,
+			listenExisting: listenExisting
 		}
 	})();
 	
@@ -170,9 +181,16 @@
 		 */
 		Element.prototype.addClass = function (newClass) {
 			var classString = this.getAttribute("class");
-			this.removeClass(newClass);
-			if (classString) classString += " ";
-			else classString = "";
+			if (classString) {
+
+				// If the class is already there, don't readd it
+				var regex = new RegExp("(^|\\s)"+newClass+"($|\\s)", 'ig');
+				if (classString.match(regex)) return this;
+
+				classString += " ";
+			} else {
+				classString = "";
+			}
 			classString += newClass;
 			this.setAttribute("class", classString);
 			return this;
@@ -937,7 +955,7 @@
 				}, true);
 			}
 			globallinkhandlers.push(function _handlelocallinks(url) {
-				if (url.indexOf(baseurl) != 0) return false;
+				if (!url || url.indexOf(baseurl) != 0) return false;
 				nav.send(url.replace(baseurl, ''));
 				return true;
 			});
@@ -957,7 +975,7 @@
 		listen: pubsub.listen,
 		waitFor: pubsub.waitFor,
 		send: pubsub.send,
-		unlisten: pubsub.unlisten,
+		pubsub: pubsub,
 		getTime: getTime,
 		speech: speech,
 		addNavBar: addNavBar,
