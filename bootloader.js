@@ -117,13 +117,20 @@
 								if (console && console.warn) console.warn(req.status + " error occured");
 								return;
 							}
-				 
+
+							var lucos = null;
+
 							if ("lucosjs" in jsmodules) {
-								require("lucosjs").send("bootloaderReady");
+								lucos = require("lucosjs");
+							} else if ("_lucos" in jsmodules) {
+								lucos = require("_lucos");
+							}
+							if (lucos) {
+								lucos.send("bootloaderReady");
 								if (window != window.parent) {
-									require("lucosjs").send('preload', {result: 'done', section: 'resources'}, window.parent);
+									lucos.send('preload', {result: 'done', section: 'resources'}, window.parent);
 								}
-								require("lucosjs").waitFor('manifestready', hideSplashScreen);
+								lucos.waitFor('manifestready', hideSplashScreen);
 							} else {
 								hideSplashScreen();
 							}
