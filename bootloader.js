@@ -90,7 +90,9 @@
 											location.reload();
 											return;
 										}
-										throw e;
+										if (console && console.warn) console.warn(e);
+										hideSplashScreen();
+										return;
 									}
 									if (!lastversion) {
 										
@@ -111,7 +113,9 @@
 									parseResources(data.r, data);
 								}
 							} else if(req.status >= 400) {
-								throw req.status + " error occured";
+								hideSplashScreen();
+								if (console && console.warn) console.warn(req.status + " error occured");
+								return;
 							}
 				 
 							if ("lucosjs" in jsmodules) {
@@ -174,7 +178,10 @@
 									if (key in parsed) continue;
 									if (typeof data == 'object') content = data[key];
 									else content = JSON.parse(window.localStorage.getItem(key));
-									if (!content) throw "Can't find content for '"+key+"'";
+									if (!content) {
+										if (console && console.warn) console.warn("Can't find content for '"+key+"'");
+										return;
+									}
 									parseResource(key, resource.type, content);
 								}
 							
@@ -185,7 +192,10 @@
 									type = resources[key];
 									if (typeof data == 'object') content = data[key];
 									else content = JSON.parse(window.localStorage.getItem(key));
-									if (!content) throw "Can't find content for '"+key+"'";
+									if (!content) {
+										if (console && console.warn) console.warn("Can't find content for '"+key+"'");
+										return;
+									}
 									parseResource(key, type, content);
 								}
 							}
@@ -206,12 +216,13 @@
 								}
 							}
 						} catch (err) {
-							if (typeof console !== 'undefined') {
+							if (typeof console !== 'undefined' && console.warn) {
 								if (err.toString) {
-									console.log(key, err.toString(), err);
+									console.warn(key, err.toString(), err);
 								} else {
-									console.log(key, err);
+									console.warn(key, err);
 								}
+								hideSplashScreen();
 							}
 						}
 					}
