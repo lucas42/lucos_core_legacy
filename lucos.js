@@ -806,15 +806,15 @@
 					if (!currentPolls[url]) return;
 					try {
 						var newdata = JSON.parse(req.responseText);
-						if (newdata.hashcode) {
-							hashcode = newdata.hashcode;
-							if (callback) callback(newdata);
-						}
 					} catch (err) {
 						if (typeof console !== 'undefined') console.log("Error parsing json: ", "\""+req.responseText+"\"", err);
 						if (!currentPolls[url]) return;
 						setTimeout(function _retrypoll() { getpoll(url, callback); }, 5000);
 						return;
+					}
+					if (newdata.hashcode) {
+						hashcode = newdata.hashcode;
+						if (callback) callback(newdata);
 					}
 					if (!currentPolls[url]) return;
 					getpoll(url, callback);
@@ -831,7 +831,7 @@
 		function stoppoll(url) {
 			currentPolls[url] = false;
 		}
-		function raw(method, url, getparams, postparams, readystatechange, usecredentials) {
+		function raw(method, url, getparams, postparams, readystatechange, usecredentials, responsetype) {
 			if (!getparams) getparams = {};
 			var qry = [];
 			for(var ii in getparams) qry.push(encodeURIComponent(ii) + "=" + encodeURIComponent(getparams[ii]));
@@ -850,33 +850,36 @@
 				}
 				req.open(method, url, true);
 				if (usecredentials) req.withCredentials = true;
+				if (responsetype) req.responseType = responsetype;
 				req.send(null);
 			} catch (e) {
 				throw "AJAX Error ("+url+") ";
+			}
+		}
+		function checkreadystate(success, error) {
+			return function _handlegetresponse(req) {
+				if(req.readyState != 4) return;
+				if(req.status == 200) {
+					if (success) success(req);
+				} else {
+					if (error) error(req);
+				}
 			}
 		}
 		function rawget(url, params, readystatechange, usecredentials) {
 			raw("GET", url, params, null, readystatechange, usecredentials);
 		}
 		function get(url, params, callback, error, usecredentials) {
-			raw("GET", url, params, null, function _handlegetresponse(req) {
-				if(req.readyState != 4) return;
-				if(req.status == 200) {
-					if (callback) callback(req);
-				} else {
-					if (error) error(req);
-				}
-			}, usecredentials);
+			raw("GET", url, params, null, checkreadystate(callback, error), usecredentials);
 		}
 		function post(url, getparams, postparams, callback, error, usecredentials) {
-			raw("POST", url, getparams, postparams, function _handlegetresponse(req) {
-				if(req.readyState != 4) return;
-				if(req.status == 200) {
-					if (callback) callback(req);
-				} else {
-					if (error) error(req);
-				}
-			}, usecredentials);
+			raw("POST", url, getparams, postparams, checkreadystate(callback, error), usecredentials);
+		}
+		function getblob(url, callback, error) {
+			raw("GET", url, null, null, checkreadystate(function (req) {
+				var blob = new Blob([req.response], {type: req.getResponseHeader('content-type')});
+				callback(blob);
+			}, error), null, "blob");
 		}
 		return {
 			startpoll: startpoll,
@@ -884,6 +887,7 @@
 			rawget: rawget,
 			get: get,
 			post: post,
+			getblob: getblob
 		}
 	})();
 	var render = function _render(template, data) {
