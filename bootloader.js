@@ -218,8 +218,8 @@
 							} else {
 
 								// If no main module has been specified, then just require all the javascript modules
-								for (ii in jsmodules) {
-									require(ii);
+								for (key in jsmodules) {
+									require(key);
 								}
 							}
 						} catch (err) {
