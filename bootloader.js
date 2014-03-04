@@ -54,7 +54,7 @@
 					})();
 				}
 				(function _bootloader(firstload) {
-					var key, resources, version, forcechange, splashScreen, done=false, parsed = {}, loadingmessage = document.createTextNode();
+					var key, resources, version, forcechange, splashScreen, done=false, parsed = {}, loadingmessage = document.createTextNode("");
 					window.lucos_bootloader = {
 						bootdata: {}
 					};
