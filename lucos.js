@@ -352,7 +352,7 @@
 		// Check whether the user is loggedin
 		// Wrap in a try/catch incase the browser doesn't support CORS
 		try {
-			net.get('http://auth.l42.eu/whoami', null, function (req) {
+			net.get('https://auth.l42.eu/whoami', null, function (req) {
 				var data = JSON.parse(req.responseText);
 				if (data.agentid) createButton('Logged in');
 			}, null, true);
