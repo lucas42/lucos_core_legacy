@@ -591,7 +591,7 @@
 						fetchOffset();
 					});
 					timeFrame = document.createElement("iframe");
-					timeFrame.src = "http://am.l42.eu/";
+					timeFrame.src = "https://am.l42.eu/";
 					timeFrame.setAttribute("style", "height: 0; width: 0; display:none;");
 					document.body.appendChild(timeFrame);
 				}
