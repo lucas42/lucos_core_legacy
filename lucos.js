@@ -233,12 +233,12 @@
 		navbar.setAttribute("style", "height: 30px; z-index:1000; color: white; position: absolute; left: 0; right: 0; top: 0; font-size: 18px; background-color: black; background-image: -webkit-gradient(linear, 0 100%, 0 0, color-stop(0, transparent), color-stop(0.15, transparent), color-stop(0.9, rgba(255, 255, 255, 0.4))); font-family: Georgia, serif");
 		
 		var homeimg = document.createElement('img');
-		homeimg.src = 'http://l42.eu/logo.png';
+		homeimg.src = 'https://l42.eu/logo.png';
 		homeimg.setAttribute("alt", "lucOS");
 		homeimg.setAttribute("style", "float: left; height: 25px; padding: 2.5px 2%; cursor: pointer; max-width: 20%; border: none;");
 		var homeimglnk = document.createElement("a");
 		//homeimglnk.setAttribute("target", "_blank");
-		homeimglnk.setAttribute("href", "http://l42.eu/");
+		homeimglnk.setAttribute("href", "https://l42.eu/");
 		homeimglnk.appendChild(homeimg);
 		/*homeimglnk.addEventListener("click", function (event) { 
 			if (event.button !== 0) return;
@@ -322,7 +322,7 @@
 		window.addEventListener("click", function _hidemusic(event) {
 			pubsub.send('hidemusic', null, top);
 		}, true);*/
-		createMenu('options', 'http://l42.eu/cog.png');
+		createMenu('options', 'https://l42.eu/cog.png');
 		(function _controlDevButton() {
 			var devmodebutton = createButton('Dev', null, !detect.isDev(), function () { window.location.reload() });
 			devmodebutton.style.color = '#9CF';
@@ -399,7 +399,7 @@
 			
 			// Use location.href for any internal links so that the twonkPad doesn't break out of app and use safari
 			globallinkhandlers.push(function _keeplinksinstandalone(url) {
-				if (url == 'http://l42.eu/') localStorage.removeItem("laststandaloneurl");
+				if (url == 'https://l42.eu/') localStorage.removeItem("laststandaloneurl");
 				location.href = url;
 				return true;
 			});
@@ -408,7 +408,7 @@
 				
 				// Remember the last url used to make the behaviour more app-like
 				var lasturl = localStorage.getItem("laststandaloneurl");
-				if (lasturl && lasturl != location.href && document.referrer == 'http://l42.eu/') location.href = lasturl;
+				if (lasturl && lasturl != location.href && document.referrer == 'https://l42.eu/') location.href = lasturl;
 				else localStorage.setItem("laststandaloneurl", location.href);
 			}
 		
