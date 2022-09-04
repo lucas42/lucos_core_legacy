@@ -1,6 +1,13 @@
-#lucos core
+# lucos core
 
 Core functionality used by multiple lucos modules
+
+## Deprecated
+This library has been deprecated.  Some bits of functionality have been split out into separate libraries:
+
+* [lucos_navbar](https://github.com/lucas42/lucos_navbar) - A web component which handles the navigation bar at the top of lucos pages
+* [lucos_pubsub](https://github.com/lucas42/lucos_pubsub) - A fork of the lucos.pubsub logic from lucos_core
+* [lucos_time_component](https://github.com/lucas42/lucos_time_component) - Replacement for lucos.getTime and a web component which displays the time in the navbar.
 
 ## Background
 Bascially, a load of functionality which has been used by several lucos modules has been abstracted out and chucked into a directory.  Don't expect any order or consistency at the moment, this is just a starting point.
